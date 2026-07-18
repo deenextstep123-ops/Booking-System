@@ -1,0 +1,15 @@
+.venv/
+
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Flask instance folder
+instance/
+
+# Environment variables
+.env
+
+# PyCharm project settings
+.idea/
