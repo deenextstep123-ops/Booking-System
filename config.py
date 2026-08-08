@@ -12,4 +12,4 @@ class Config:
         f"sqlite:///{DATABASE_PATH}"
     )
 
-    SQLALCHEMY_TRACK_MODIFICATIONS = Falsegit
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

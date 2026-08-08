@@ -9,6 +9,7 @@ from flask_migrate import Migrate
 db = SQLAlchemy()
 
 login = LoginManager()
+login.login_view = "auth.login"
 
 mail = Mail()
 

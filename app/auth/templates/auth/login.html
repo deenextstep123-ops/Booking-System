@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Log In</title>
+</head>
+
+<body>
+
+    <h1>Log In</h1>
+
+    {% if form and form.errors %}
+        <ul>
+            {% for error in form.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <!--suppress HtmlUnknownTarget -->
+    <form action="{{ url_for('auth.login', next=request.args.get('next')) }}" method="POST">
+
+        <label for="user">Username or email:</label>
+        <input
+            type="text"
+            id="user"
+            name="user"
+            value="{{ form.user if form else '' }}"
+        >
+
+        <label for="password">Password:</label>
+        <input
+            type="password"
+            id="password"
+            name="password"
+        >
+
+        <button type="submit">Log In</button>
+
+    </form>
+
+</body>
+
+</html>
