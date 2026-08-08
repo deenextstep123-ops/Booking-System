@@ -1,12 +1,14 @@
 from flask import render_template, request
 from flask import redirect, url_for
 
-from flask_login import login_user, current_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required
 
 from app.models import User
 from app.auth import auth
 from app.auth.forms import RegistrationForm, LoginForm
 from app.extensions import db
+
+from urllib.parse import urlsplit
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
@@ -15,11 +17,9 @@ def register():
     # POST will receive the data in the forms of the particular HTML file on the website,
     # in this case the data in the register form
 
-    print("landed in register route",request.method)
 
     if request.method == "POST":
 
-        print("POST DATA: ", request.form)
         form = RegistrationForm(request.form)
         # create the form object, validate the data in the form, once validated
         # create the user object with the data from the form
@@ -27,8 +27,10 @@ def register():
         # data from the form
 
         if form.validate():
-            print("FORM VALIDATED",form.username)
 
+            # PyCharm thinks there's unexpected arguments, it's wrong, noinspection ignores it for the next line so
+            # the error doesn't keep popping up
+            #noinspection PyArgumentList
             user = User(
                 username = form.username,
                 email = form.email,
@@ -41,14 +43,13 @@ def register():
             db.session.add(user)
             db.session.commit()
 
-            #temporarily go to the login page, later on we will do a proper login route
+
             return redirect(url_for("auth.login"))
 
         # so it's gone from the website > python user object > SQL database
 
         # if the data isn't valid it will go back to the register page
 
-        print("FORM NOT VALIDATED",form.errors)
 
         return render_template(
             "auth/register.html",
@@ -60,10 +61,9 @@ def register():
 
 @auth.route("/login", methods=["GET","POST"])
 def login():
-    print("landed in login route",request.method)
 
     if request.method == "POST":
-        print("LOGIN POST DATA: ", request.form)
+
         form = LoginForm(request.form)
 
         user = form.validate()
@@ -74,15 +74,18 @@ def login():
             next_page = request.args.get("next")
 
             if next_page:
-                return redirect(next_page)
+                parsed_url = urlsplit(next_page)
 
-            print("LOGIN SUCCESSFUL current user is: ", current_user.is_authenticated)
-            print("LOGIN SUCCESSFUL user is: ", current_user.username)
+                if (
+                        not parsed_url.scheme
+                        and not parsed_url.netloc
+                        and parsed_url.path.startswith("/")
+                ):
+                    return redirect(next_page)
 
-            return render_template(
-                "auth/loginSuccess.html",
-                form=form,user=user
-            )
+
+            return redirect(url_for("main.dashboard"))
+
         return render_template(
             "auth/login.html",
             form=form
@@ -90,14 +93,9 @@ def login():
 
     return render_template("auth/login.html")
 
-@auth.route("/whoami")
-@login_required
-def whoami():
-
-    return f"Logged in as {current_user.username}"
 
 @auth.route("/logout")
 @login_required
 def logout():
     logout_user()
-    return "You have logged out"
+    return redirect(url_for("auth.login"))
