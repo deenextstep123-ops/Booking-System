@@ -8,6 +8,7 @@ from app.extensions import db, login, mail, migrate
 from app.main import main
 from app.models import User
 from app.auth import auth
+from app.admin import admin
 
 
 def create_app():
@@ -34,6 +35,7 @@ def register_blueprints(app):
     """Register Flask blueprints."""
     app.register_blueprint(main)
     app.register_blueprint(auth)
+    app.register_blueprint(admin)
 
 @login.user_loader
 def load_user(user_id):
